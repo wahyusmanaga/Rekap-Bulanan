@@ -22,28 +22,11 @@
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-sans">
     <div class="container mx-auto px-4 py-6 max-w-6xl">
-        <!-- Navbar -->
-        <nav class="bg-white rounded-xl border border-gray-200 p-4 mb-6 sm:mb-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-lg sm:text-xl font-bold text-gray-800">FINANSIAL TRACKER</h1>
-                        <p class="text-xs sm:text-sm text-gray-600">Rekap Keuangan Keluarga</p>
-                    </div>
-                </div>
-                <div class="hidden sm:flex items-center gap-2 text-sm text-gray-600">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                    <span>Dashboard Keluarga</span>
-                </div>
-            </div>
-        </nav>
+        <!-- Header -->
+        <div class="text-center mb-6 sm:mb-8">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 px-2">FINANSIAL TRACKER</h1>
+            <p class="text-sm text-gray-600 m-1 p-1">Rekap Keuangan Keluarga</p>
+        </div>
 
         <!-- Login Section -->
         <div id="login-section" class="section">
@@ -144,8 +127,8 @@
                         <canvas id="pieChart" width="128" height="128"></canvas>
                         <div id="chartCenter" class="absolute inset-0 flex items-center justify-center">
                             <div class="text-center">
-                                <p class="text-xs text-white">Total</p>
-                                <p id="chartTotal" class="text-xs font-bold text-white">Rp 0</p>
+                                <p class="text-xs text-gray-500">Total</p>
+                                <p id="chartTotal" class="text-xs font-bold text-gray-800">Rp 0</p>
                             </div>
                         </div>
                     </div>
@@ -163,45 +146,36 @@
             </div>
 
             <!-- Menu Navigation -->
-            <div class="max-w-md mx-auto">
-                <h3 class="text-xl font-bold text-gray-800 text-center mb-4">Daftar Menu</h3>
-                <div class="grid grid-cols-1 gap-4">
+            <div class="grid grid-cols-1 gap-4 max-w-md mx-auto">
                 <!-- Input Transaksi -->
-                <button onclick="showSection('input')" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-5 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 hover:shadow-lg group">
+                <button onclick="showSection('input')" class="bg-white rounded-xl border border-gray-200 p-4 hover:border-blue-400 transition-all duration-300 hover:scale-105 group">
                     <div class="flex items-center justify-center gap-3">
-                        <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center group-hover:bg-opacity-30 transition-all duration-300">
-                            <svg class="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-white">Input Transaksi</h3>
+                        <svg class="w-6 h-6 text-blue-500 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <h3 class="text-lg font-bold text-gray-800">Input Transaksi</h3>
                     </div>
                 </button>
 
                 <!-- Kelola Data -->
-                <button onclick="showSection('manage')" class="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl p-5 hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 hover:shadow-lg group">
+                <button onclick="showSection('manage')" class="bg-white rounded-xl border border-gray-200 p-4 hover:border-green-400 transition-all duration-300 hover:scale-105 group">
                     <div class="flex items-center justify-center gap-3">
-                        <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center group-hover:bg-opacity-30 transition-all duration-300">
-                            <svg class="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-white">Kelola Data</h3>
+                        <svg class="w-6 h-6 text-green-500 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                        <h3 class="text-lg font-bold text-gray-800">Kelola Data</h3>
                     </div>
                 </button>
 
                 <!-- Laporan -->
-                <button onclick="showSection('reports')" class="bg-gradient-to-r from-violet-500 to-violet-600 text-white rounded-xl p-5 hover:from-violet-600 hover:to-violet-700 transition-all duration-300 hover:scale-105 hover:shadow-lg group">
+                <button onclick="showSection('reports')" class="bg-white rounded-xl border border-gray-200 p-4 hover:border-purple-400 transition-all duration-300 hover:scale-105 group">
                     <div class="flex items-center justify-center gap-3">
-                        <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center group-hover:bg-opacity-30 transition-all duration-300">
-                            <svg class="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-white">Laporan</h3>
+                        <svg class="w-6 h-6 text-purple-500 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <h3 class="text-lg font-bold text-gray-800">Laporan</h3>
                     </div>
                 </button>
-                </div>
             </div>
         </div>
 
@@ -274,12 +248,18 @@
         <div id="manage-section" class="section hidden">
             <div class="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
                 <!-- Back Button -->
-                <div class="flex justify-start items-start mb-4">
+                <div class="flex justify-between items-start mb-4">
                     <button onclick="showSection('dashboard')" class="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
                         <span class="text-sm font-medium">Kembali</span>
+                    </button>
+                    <button onclick="logout()" class="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors border border-red-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        <span class="text-sm font-medium">Logout</span>
                     </button>
                 </div>
                 <!-- Header -->
@@ -338,12 +318,18 @@
                 <!-- Report Navigation -->
                 <div class="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
                     <!-- Back Button -->
-                    <div class="flex justify-start items-start mb-4">
+                    <div class="flex justify-between items-start mb-4">
                         <button onclick="showSection('dashboard')" class="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                             </svg>
                             <span class="text-sm font-medium">Kembali</span>
+                        </button>
+                        <button onclick="logout()" class="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors border border-red-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span class="text-sm font-medium">Logout</span>
                         </button>
                     </div>
                     <!-- Header -->
@@ -452,27 +438,6 @@
                 </button>
                 <button onclick="confirmDelete()" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
                     Hapus
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Logout Confirmation Popup -->
-    <div id="logout-popup" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 text-center transform scale-95 transition-transform duration-300">
-            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                </svg>
-            </div>
-            <h3 class="text-lg font-bold text-gray-800 mb-2">Konfirmasi Logout</h3>
-            <p class="text-gray-600 mb-6">Yakin ingin keluar dari aplikasi? Anda perlu login kembali untuk mengakses data keuangan.</p>
-            <div class="flex gap-3">
-                <button onclick="closeLogoutPopup()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
-                    Batal
-                </button>
-                <button onclick="confirmLogout()" class="flex-1 bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors">
-                    Logout
                 </button>
             </div>
         </div>
@@ -624,52 +589,26 @@
         });
 
         // Logout function
-        function logout() {
-            showLogoutPopup();
-        }
-        
-        function showLogoutPopup() {
-            const popup = document.getElementById('logout-popup');
-            popup.classList.remove('hidden');
-            popup.classList.add('flex');
-            
-            // Add scale animation
-            setTimeout(() => {
-                popup.querySelector('.transform').classList.remove('scale-95');
-                popup.querySelector('.transform').classList.add('scale-100');
-            }, 10);
-        }
-        
-        function closeLogoutPopup() {
-            const popup = document.getElementById('logout-popup');
-            popup.querySelector('.transform').classList.remove('scale-100');
-            popup.querySelector('.transform').classList.add('scale-95');
-            
-            setTimeout(() => {
-                popup.classList.add('hidden');
-                popup.classList.remove('flex');
-            }, 300);
-        }
-        
-        async function confirmLogout() {
-            try {
-                // Supabase logout
-                await supabase.auth.signOut();
-            } catch (error) {
-                console.error('Logout error:', error);
+        async function logout() {
+            if (confirm('Yakin ingin logout?')) {
+                try {
+                    // Supabase logout
+                    await supabase.auth.signOut();
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+                
+                isLoggedIn = false;
+                currentUser = null;
+                transactions = [];
+                showSection('login');
+                
+                // Clear form fields
+                document.getElementById('login-username').value = '';
+                document.getElementById('login-password').value = '';
+                
+                showSuccessPopup('Logout berhasil. Terima kasih telah menggunakan aplikasi!');
             }
-            
-            isLoggedIn = false;
-            currentUser = null;
-            transactions = [];
-            showSection('login');
-            
-            // Clear form fields
-            document.getElementById('login-username').value = '';
-            document.getElementById('login-password').value = '';
-            
-            closeLogoutPopup();
-            showSuccessPopup('Logout berhasil. Terima kasih telah menggunakan aplikasi!');
         }
 
         // Update current date display
@@ -753,14 +692,6 @@
             if (targetSection) {
                 targetSection.classList.remove('hidden');
                 targetSection.classList.add('fade-in');
-            }
-            
-            // Show/hide navbar logout button
-            const navbarLogout = document.getElementById('navbar-logout');
-            if (section === 'login') {
-                navbarLogout.style.display = 'none';
-            } else {
-                navbarLogout.style.display = 'flex';
             }
             
             // Load data when entering dashboard
