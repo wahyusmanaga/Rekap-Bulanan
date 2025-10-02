@@ -1,0 +1,155 @@
+-- Enable Row Level Security
+ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret-here';
+
+-- Create transactions table
+CREATE TABLE IF NOT EXISTS public.transactions (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    type VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense')),
+    amount BIGINT NOT NULL CHECK (amount > 0),
+    category VARCHAR(50) NOT NULL,
+    description TEXT NOT NULL,
+    date DATE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create index for better performance
+CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON public.transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_date ON public.transactions(date);
+CREATE INDEX IF NOT EXISTS idx_transactions_type ON public.transactions(type);
+CREATE INDEX IF NOT EXISTS idx_transactions_category ON public.transactions(category);
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies
+-- Users can only see their own transactions
+CREATE POLICY "Users can view own transactions" ON public.transactions
+    FOR SELECT USING (auth.uid() = user_id);
+
+-- Users can only insert their own transactions
+CREATE POLICY "Users can insert own transactions" ON public.transactions
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Users can only update their own transactions
+CREATE POLICY "Users can update own transactions" ON public.transactions
+    FOR UPDATE USING (auth.uid() = user_id);
+
+-- Users can only delete their own transactions
+CREATE POLICY "Users can delete own transactions" ON public.transactions
+    FOR DELETE USING (auth.uid() = user_id);
+
+-- Create function to automatically update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Create trigger to automatically update updated_at
+CREATE TRIGGER update_transactions_updated_at 
+    BEFORE UPDATE ON public.transactions 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Create view for monthly summary (optional, for better performance)
+CREATE OR REPLACE VIEW public.monthly_summary AS
+SELECT 
+    user_id,
+    DATE_TRUNC('month', date) as month,
+    SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income,
+    SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as total_expense,
+    SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) as net_balance,
+    COUNT(*) as transaction_count
+FROM public.transactions
+GROUP BY user_id, DATE_TRUNC('month', date)
+ORDER BY month DESC;
+
+-- Create view for category summary (optional)
+CREATE OR REPLACE VIEW public.category_summary AS
+SELECT 
+    user_id,
+    category,
+    type,
+    SUM(amount) as total_amount,
+    COUNT(*) as transaction_count,
+    AVG(amount) as average_amount,
+    MIN(amount) as min_amount,
+    MAX(amount) as max_amount
+FROM public.transactions
+GROUP BY user_id, category, type
+ORDER BY total_amount DESC;
+
+-- Insert sample categories (optional)
+-- This is just for reference, the app handles categories in the frontend
+/*
+CREATE TABLE IF NOT EXISTS public.categories (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    type VARCHAR(10) NOT NULL CHECK (type IN ('income', 'expense', 'both')),
+    icon VARCHAR(50),
+    color VARCHAR(7),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+INSERT INTO public.categories (name, type, icon, color) VALUES
+('makanan', 'expense', '🍽️', '#ef4444'),
+('transportasi', 'expense', '🚗', '#f97316'),
+('belanja', 'expense', '🛍️', '#eab308'),
+('tagihan', 'expense', '📄', '#dc2626'),
+('kesehatan', 'expense', '🏥', '#059669'),
+('hiburan', 'expense', '🎬', '#7c3aed'),
+('gaji', 'income', '💰', '#059669'),
+('bonus', 'income', '🎁', '#0891b2'),
+('lainnya', 'both', '📝', '#6b7280');
+*/
+
+-- Create function to get user balance
+CREATE OR REPLACE FUNCTION get_user_balance(user_uuid UUID)
+RETURNS BIGINT AS $$
+DECLARE
+    total_income BIGINT;
+    total_expense BIGINT;
+BEGIN
+    SELECT 
+        COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0),
+        COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0)
+    INTO total_income, total_expense
+    FROM public.transactions
+    WHERE user_id = user_uuid;
+    
+    RETURN total_income - total_expense;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create function to get monthly totals
+CREATE OR REPLACE FUNCTION get_monthly_totals(user_uuid UUID, target_month DATE)
+RETURNS TABLE(
+    total_income BIGINT,
+    total_expense BIGINT,
+    net_balance BIGINT,
+    transaction_count BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as total_income,
+        COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as total_expense,
+        COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END), 0) as net_balance,
+        COUNT(*)::BIGINT as transaction_count
+    FROM public.transactions
+    WHERE user_id = user_uuid 
+    AND DATE_TRUNC('month', date) = DATE_TRUNC('month', target_month);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant necessary permissions
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT ALL ON public.transactions TO authenticated;
+GRANT SELECT ON public.monthly_summary TO authenticated;
+GRANT SELECT ON public.category_summary TO authenticated;
+GRANT EXECUTE ON FUNCTION get_user_balance(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION get_monthly_totals(UUID, DATE) TO authenticated;
