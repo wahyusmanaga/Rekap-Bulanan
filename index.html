@@ -944,12 +944,12 @@
 const itemsPerPage = 10;
 
 function displayTransactions(filteredTransactions = null) {
-    const transactionsToShow = filteredTransactions || transactions;
+    const transactionsToShow = (filteredTransactions !== null) ? filteredTransactions : transactions;
     const tbody = document.getElementById('transactions-table');
     const pagination = document.getElementById('pagination');
 
     if (transactionsToShow.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Tidak ada transaksi</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">Tidak ada transaksi</td></tr>';
         pagination.innerHTML = "";
         return;
     }
@@ -964,32 +964,25 @@ function displayTransactions(filteredTransactions = null) {
 
     // render rows
     tbody.innerHTML = paginatedData.map((t, index) => `
-    <tr class="hover:bg-gray-50">
-        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900">
-            ${(start + index + 1)} <!-- nomor urut global -->
-        </td>
-        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900">${formatDate(t.date)}</td>
-        <td class="px-2 sm:px-4 py-3">
-            <span class="px-1 sm:px-2 py-1 text-xs font-medium rounded-full ${t.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                ${t.type === 'income' ? 'Masuk' : 'Keluar'}
-            </span>
-        </td>
-        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900 capitalize hidden sm:table-cell">${t.category}</td>
-        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900">
-            <div class="max-w-32 sm:max-w-none truncate">${t.description}</div>
-            <div class="sm:hidden text-xs text-gray-500 capitalize">${t.category}</div>
-        </td>
-        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
-            ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
-        </td>
-        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm">
-            <div class="flex flex-col sm:flex-row gap-1 sm:gap-2">
-                <button onclick="editTransaction('${t.id}')" class="text-blue-600 hover:text-blue-800">Edit</button>
-                <button onclick="deleteTransaction('${t.id}')" class="text-red-600 hover:text-red-800">Hapus</button>
-            </div>
-        </td>
-    </tr>
-`).join('');
+        <tr class="hover:bg-gray-50">
+            <td class="px-2 sm:px-4 py-3">${start + index + 1}</td>
+            <td class="px-2 sm:px-4 py-3">${formatDate(t.date)}</td>
+            <td class="px-2 sm:px-4 py-3">
+                <span class="px-2 py-1 text-xs font-medium rounded-full ${t.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                    ${t.type === 'income' ? 'Masuk' : 'Keluar'}
+                </span>
+            </td>
+            <td class="px-2 sm:px-4 py-3 hidden sm:table-cell">${t.category}</td>
+            <td class="px-2 sm:px-4 py-3">${t.description}</td>
+            <td class="px-2 sm:px-4 py-3 ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
+            </td>
+            <td class="px-2 sm:px-4 py-3">
+                <button onclick="editTransaction('${t.id}')" class="text-blue-600">Edit</button>
+                <button onclick="deleteTransaction('${t.id}')" class="text-red-600">Hapus</button>
+            </td>
+        </tr>
+    `).join('');
 
     // render pagination
     const totalPages = Math.ceil(transactionsToShow.length / itemsPerPage);
@@ -1001,30 +994,33 @@ function displayTransactions(filteredTransactions = null) {
         btn.className = `px-3 py-1 rounded-lg border ${i === currentPage ? "bg-blue-600 text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`;
         btn.onclick = () => {
             currentPage = i;
-            displayTransactions(filteredTransactions);
+            displayTransactions(filteredTransactions); // tetap kirim hasil filter
         };
         pagination.appendChild(btn);
     }
 }
 
 
+
         // Apply filters
         function applyFilters() {
-            const typeFilter = document.getElementById('filter-type').value;
-            const categoryFilter = document.getElementById('filter-category').value;
-            
-            let filtered = transactions;
-            
-            if (typeFilter !== 'all') {
-                filtered = filtered.filter(t => t.type === typeFilter);
-            }
-            
-            if (categoryFilter !== 'all') {
-                filtered = filtered.filter(t => t.category === categoryFilter);
-            }
-            
-            displayTransactions(filtered);
-        }
+    const typeFilter = document.getElementById('filter-type').value;
+    const categoryFilter = document.getElementById('filter-category').value;
+
+    let filtered = transactions;
+
+    if (typeFilter !== 'all') {
+        filtered = filtered.filter(t => t.type === typeFilter);
+    }
+
+    if (categoryFilter !== 'all') {
+        filtered = filtered.filter(t => t.category === categoryFilter);
+    }
+
+    currentPage = 1; // reset ke halaman pertama
+    displayTransactions(filtered);
+}
+
 
         // Edit transaction
         function editTransaction(id) {
