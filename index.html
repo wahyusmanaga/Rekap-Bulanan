@@ -1107,6 +1107,17 @@
             
             const balance = totalIncome - totalExpense;
 
+            // Calculate total balance from all transactions
+            const totalAllIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const totalAllExpense = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const totalBalance = totalAllIncome - totalAllExpense;
+
             // Group by category
             const categoryTotals = {};
             filteredTransactions.forEach(t => {
@@ -1119,17 +1130,32 @@
             reportResults.innerHTML = `
                 <h3 class="text-xl font-bold text-gray-800 mb-4">${periodText}</h3>
                 
+                <!-- Total Balance Card -->
+                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-4 rounded-lg border-2 border-indigo-200 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-indigo-600 font-medium">💳 Total Saldo Keseluruhan</p>
+                            <p class="text-2xl font-bold ${totalBalance >= 0 ? 'text-green-700' : 'text-red-700'}">${formatCurrency(totalBalance)}</p>
+                            <p class="text-xs text-indigo-500 mt-1">Saldo dari semua transaksi hingga saat ini</p>
+                        </div>
+                        <div class="text-3xl">
+                            ${totalBalance >= 0 ? '📈' : '📉'}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Period Summary -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div class="bg-green-50 p-4 rounded-lg border border-green-200">
-                        <p class="text-sm text-green-600 font-medium">Total Pemasukan</p>
+                        <p class="text-sm text-green-600 font-medium">Pemasukan Periode</p>
                         <p class="text-xl font-bold text-green-700">${formatCurrency(totalIncome)}</p>
                     </div>
                     <div class="bg-red-50 p-4 rounded-lg border border-red-200">
-                        <p class="text-sm text-red-600 font-medium">Total Pengeluaran</p>
+                        <p class="text-sm text-red-600 font-medium">Pengeluaran Periode</p>
                         <p class="text-xl font-bold text-red-700">${formatCurrency(totalExpense)}</p>
                     </div>
                     <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                        <p class="text-sm text-blue-600 font-medium">Saldo</p>
+                        <p class="text-sm text-blue-600 font-medium">Saldo Periode</p>
                         <p class="text-xl font-bold ${balance >= 0 ? 'text-green-700' : 'text-red-700'}">${formatCurrency(balance)}</p>
                     </div>
                 </div>
