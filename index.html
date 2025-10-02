@@ -24,7 +24,8 @@
     <div class="container mx-auto px-4 py-6 max-w-6xl">
         <!-- Header -->
         <div class="text-center mb-6 sm:mb-8">
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 sm:mb-6 px-2">REKAP KEUANGAN KELUARGA</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 px-2">FINANSIAL TRACKER</h1>
+            <p class="text-sm text-gray-600 m-1 p-1">Rekap Keuangan Keluarga</p>
         </div>
 
         <!-- Login Section -->
@@ -37,7 +38,7 @@
                         </svg>
                     </div>
                     <h2 class="text-2xl font-bold text-gray-800 mb-2">Masuk ke Akun</h2>
-                    <p class="text-gray-600">Silakan masuk untuk mengakses rekap keuangan keluarga</p>
+                    <p class="text-gray-600">Silakan masuk untuk mengakses aplikasi</p>
                 </div>
                 
                 <form id="login-form" class="space-y-4">
@@ -53,13 +54,6 @@
                         Masuk
                     </button>
                 </form>
-                
-                <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <p class="text-sm text-blue-800 font-medium mb-2">Aplikasi Keuangan Keluarga</p>
-                    <p class="text-xs text-blue-700 mb-2">✅ Terhubung dengan Supabase</p>
-                    <p class="text-xs text-blue-700 mb-2">🔒 Data tersimpan aman di cloud</p>
-                    <p class="text-xs text-blue-700">📱 Akses dari mana saja dengan akun yang sama</p>
-                </div>
             </div>
         </div>
 
@@ -425,6 +419,27 @@
             <button onclick="closeSuccessPopup()" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
                 OK
             </button>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Popup -->
+    <div id="delete-popup" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4 text-center transform scale-95 transition-transform duration-300">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Konfirmasi Hapus</h3>
+            <p class="text-gray-600 mb-6">Yakin ingin menghapus transaksi ini? Data yang sudah dihapus tidak dapat dikembalikan.</p>
+            <div class="flex gap-3">
+                <button onclick="closeDeletePopup()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+                    Batal
+                </button>
+                <button onclick="confirmDelete()" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
+                    Hapus
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1016,30 +1031,63 @@
         });
 
         // Delete transaction
-        async function deleteTransaction(id) {
-            if (confirm('Yakin ingin menghapus transaksi ini?')) {
-                try {
-                    // Delete from Supabase
-                    const { error } = await supabase
-                        .from('transactions')
-                        .delete()
-                        .eq('id', id)
-                        .eq('user_id', currentUser.id);
-                    
-                    if (error) {
-                        throw new Error('Gagal menghapus dari server: ' + error.message);
-                    }
-                    
-                    // Remove from local array
-                    transactions = transactions.filter(t => t.id != id);
-                    updateDashboard();
-                    displayTransactions();
-                    showSuccessPopup('Transaksi berhasil dihapus!');
-                    
-                } catch (error) {
-                    console.error('Delete error:', error);
-                    alert('Gagal menghapus transaksi: ' + error.message);
+        let transactionToDelete = null;
+        
+        function deleteTransaction(id) {
+            transactionToDelete = id;
+            showDeletePopup();
+        }
+        
+        function showDeletePopup() {
+            const popup = document.getElementById('delete-popup');
+            popup.classList.remove('hidden');
+            popup.classList.add('flex');
+            
+            // Add scale animation
+            setTimeout(() => {
+                popup.querySelector('.transform').classList.remove('scale-95');
+                popup.querySelector('.transform').classList.add('scale-100');
+            }, 10);
+        }
+        
+        function closeDeletePopup() {
+            const popup = document.getElementById('delete-popup');
+            popup.querySelector('.transform').classList.remove('scale-100');
+            popup.querySelector('.transform').classList.add('scale-95');
+            
+            setTimeout(() => {
+                popup.classList.add('hidden');
+                popup.classList.remove('flex');
+                transactionToDelete = null;
+            }, 300);
+        }
+        
+        async function confirmDelete() {
+            if (!transactionToDelete) return;
+            
+            try {
+                // Delete from Supabase
+                const { error } = await supabase
+                    .from('transactions')
+                    .delete()
+                    .eq('id', transactionToDelete)
+                    .eq('user_id', currentUser.id);
+                
+                if (error) {
+                    throw new Error('Gagal menghapus dari server: ' + error.message);
                 }
+                
+                // Remove from local array
+                transactions = transactions.filter(t => t.id != transactionToDelete);
+                updateDashboard();
+                displayTransactions();
+                closeDeletePopup();
+                showSuccessPopup('Transaksi berhasil dihapus!');
+                
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('Gagal menghapus transaksi: ' + error.message);
+                closeDeletePopup();
             }
         }
 
