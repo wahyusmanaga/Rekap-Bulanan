@@ -299,25 +299,32 @@
                 </div>
 
                 <!-- Transactions Table -->
-                <div class="overflow-x-auto">
-                    <table class="w-full min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700">Tanggal</th>
-                                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700">Jenis</th>
-                                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700 hidden sm:table-cell">Kategori</th>
-                                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700">Keterangan</th>
-                                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700">Jumlah</th>
-                                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactions-table" class="divide-y divide-gray-200">
-                            <tr>
-                                <td colspan="6" class="px-2 sm:px-4 py-8 text-center text-gray-500 text-sm">Belum ada transaksi</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <!-- Transactions Table -->
+<div class="overflow-x-auto">
+    <table class="w-full min-w-full">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700">No</th>
+                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700">Tanggal</th>
+                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700">Jenis</th>
+                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700 hidden sm:table-cell">Kategori</th>
+                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700">Keterangan</th>
+                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700">Jumlah</th>
+                <th class="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700">Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="transactions-table" class="divide-y divide-gray-200">
+            <tr>
+                <td colspan="7" class="px-2 sm:px-4 py-8 text-center text-gray-500 text-sm">Belum ada transaksi</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<!-- Pagination -->
+<div id="pagination" class="flex justify-center mt-4 gap-2"></div>
+
             </div>
         </div>
 
@@ -933,42 +940,73 @@
 
 
         // Display transactions in manage section
-        function displayTransactions(filteredTransactions = null) {
-            const transactionsToShow = filteredTransactions || transactions;
-            const tbody = document.getElementById('transactions-table');
-            
-            if (transactionsToShow.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Tidak ada transaksi</td></tr>';
-                return;
-            }
+        let currentPage = 1;
+const itemsPerPage = 10;
 
-            tbody.innerHTML = transactionsToShow
-                .sort((a, b) => new Date(b.date) - new Date(a.date))
-                .map(t => `
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900">${formatDate(t.date)}</td>
-                        <td class="px-2 sm:px-4 py-3">
-                            <span class="px-1 sm:px-2 py-1 text-xs font-medium rounded-full ${t.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                ${t.type === 'income' ? 'Masuk' : 'Keluar'}
-                            </span>
-                        </td>
-                        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900 capitalize hidden sm:table-cell">${t.category}</td>
-                        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900">
-                            <div class="max-w-32 sm:max-w-none truncate">${t.description}</div>
-                            <div class="sm:hidden text-xs text-gray-500 capitalize">${t.category}</div>
-                        </td>
-                        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
-                            ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
-                        </td>
-                        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm">
-                            <div class="flex flex-col sm:flex-row gap-1 sm:gap-2">
-                                <button onclick="editTransaction('${t.id}')" class="text-blue-600 hover:text-blue-800">Edit</button>
-                                <button onclick="deleteTransaction('${t.id}')" class="text-red-600 hover:text-red-800">Hapus</button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-        }
+function displayTransactions(filteredTransactions = null) {
+    const transactionsToShow = filteredTransactions || transactions;
+    const tbody = document.getElementById('transactions-table');
+    const pagination = document.getElementById('pagination');
+
+    if (transactionsToShow.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Tidak ada transaksi</td></tr>';
+        pagination.innerHTML = "";
+        return;
+    }
+
+    // urutkan data terbaru
+    const sorted = transactionsToShow.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // hitung batas data sesuai halaman
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedData = sorted.slice(start, end);
+
+    // render rows
+    tbody.innerHTML = paginatedData.map((t, index) => `
+    <tr class="hover:bg-gray-50">
+        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900">
+            ${(start + index + 1)} <!-- nomor urut global -->
+        </td>
+        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900">${formatDate(t.date)}</td>
+        <td class="px-2 sm:px-4 py-3">
+            <span class="px-1 sm:px-2 py-1 text-xs font-medium rounded-full ${t.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                ${t.type === 'income' ? 'Masuk' : 'Keluar'}
+            </span>
+        </td>
+        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900 capitalize hidden sm:table-cell">${t.category}</td>
+        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm text-gray-900">
+            <div class="max-w-32 sm:max-w-none truncate">${t.description}</div>
+            <div class="sm:hidden text-xs text-gray-500 capitalize">${t.category}</div>
+        </td>
+        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+            ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
+        </td>
+        <td class="px-2 sm:px-4 py-3 text-xs sm:text-sm">
+            <div class="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                <button onclick="editTransaction('${t.id}')" class="text-blue-600 hover:text-blue-800">Edit</button>
+                <button onclick="deleteTransaction('${t.id}')" class="text-red-600 hover:text-red-800">Hapus</button>
+            </div>
+        </td>
+    </tr>
+`).join('');
+
+    // render pagination
+    const totalPages = Math.ceil(transactionsToShow.length / itemsPerPage);
+    pagination.innerHTML = "";
+
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = i;
+        btn.className = `px-3 py-1 rounded-lg border ${i === currentPage ? "bg-blue-600 text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`;
+        btn.onclick = () => {
+            currentPage = i;
+            displayTransactions(filteredTransactions);
+        };
+        pagination.appendChild(btn);
+    }
+}
+
 
         // Apply filters
         function applyFilters() {
