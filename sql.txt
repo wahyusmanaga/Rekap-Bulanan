@@ -14,6 +14,25 @@ CREATE TABLE IF NOT EXISTS public.transactions (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+ALTER TABLE public.transactions
+ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT now();
+
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_transactions_updated_at ON public.transactions;
+
+CREATE TRIGGER update_transactions_updated_at
+BEFORE UPDATE ON public.transactions
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+
 -- Create index for better performance
 CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON public.transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_date ON public.transactions(date);
